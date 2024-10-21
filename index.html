@@ -8,6 +8,53 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+    <div id="carregando">
+        <img src="carregando.gif">
+    </div>
+
+    <div id="btnadicionar"> + </div>
+
+    <div id="carregando2">
+            <div id="formulario">
+                <button id="btnfechar"> X</button><br><br>
+                código: <input type="text" id="codigo"> <br> <br>
+                descrição: <input type="text" id="descricao"> <br><br>
+                categoria: <input type="text" id="categoria"> <br><br>
+                setor:
+                <select id="setor">
+                    <option value="Suporte">Suporte</option>
+                    <option value="NEP">NEP</option>
+                    <option value="NAD">NAD</option>
+                    <option value="Atendimento">Atendimento</option>
+                    <option value="Administrativo">Administrativo</option>
+                </select><br><br>
+
+                <button id="btnsalvar">Salvar alterações</button>
+                <button id="btndeletar">Deletar</button>
+                
+            </div>
+    </div> <!--fim do carregando2-->
+    <div id="carregando3">
+            <div id="formulario">
+                <button id="btnfechar2"> X</button><br><br>
+               
+                descrição: <input type="text" id="descricao2"> <br><br>
+                categoria: <input type="text" id="categoria2"> <br><br>
+                setor:
+                <select id="setor2">
+                    <option value="Suporte">Suporte</option>
+                    <option value="NEP">NEP</option>
+                    <option value="NAD">NAD</option>
+                    <option value="Atendimento">Atendimento</option>
+                    <option value="Administrativo">Administrativo</option>
+                </select><br><br>
+                
+                <button id="btncadastrar">cadastrar</button>
+
+                
+            </div>
+    </div>
+
     <center>
         <h1>
             Gerenciamento de Inventários
@@ -17,7 +64,150 @@
     </center>
 
     <div id="conteudo">  
+
         
-    <div>   
+    </div> 
+        <script>
+            $(document).ready(function(){
+
+                $("#carregando3").hide();
+                $("#btnfechar2").click(function(){
+                    $("#carregando3").hide();
+                });
+                $("#btnadicionar").click(function(){
+                    $("#carregando3").show();
+                });
+
+                $("#btncadastrar").click(function(){
+                    $("#carregando3").hide();
+                    $("#carregando").show();
+                    var descricao = $("#descricao2").val();
+                    var setor = $("#setor2").val();
+                    var categoria = $("#categoria2").val();
+               
+
+                    $.ajax({
+                        url:'inserir.php',
+                        type: 'POST',
+                        data:{
+                            descricao_digitada: descricao,
+                            setor_selecionado: setor,
+                            categoria: categoria
+                        },
+                        success: function(data){
+                            $("#carregando").hide();
+                            alert(data);
+                            $("#conteudo").load("consultar.php");
+                        },
+                        erro:function(){
+                            alert("Falha ao cadastrar!!")
+                        }
+                       
+                    })// fim do ajax
+
+                });//fim do btn  salvar
+                //click no botão de salvar
+                $("#btnsalvar").click(function(){
+                    var codigo = $("#codigo").val();
+                    var descricao = $("#descricao").val();
+                    var setor = $("#setor").val();
+                    var categoria = $("#categoria").val();
+
+                    $.ajax({
+                        url: 'atualizar.php',
+                        type: 'POST',
+                        data:{
+                            cod: codigo,
+                            desc_nova: descricao,
+                            cat_nova: categoria,
+                            setor_novo: setor
+                        },
+                        success: function(data){
+                            alert(data);
+                            $("#conteudo").load("consultar.php");
+                            $("#carregando2").hide();
+                        },
+                        error: function(){
+                            alert("Falha ao atualizar")
+                        }
+
+                    })//fim do ajax
+                })//fim do click slavar
+           
+
+                //click no botão deletar
+                $("#btndeletar").click(function(){
+                  if(confirm("tem certeza que deseja deletar?")){
+                    var codigo = $("#codigo").val();
+                    $.ajax({
+                        url: 'deletar.php',
+                        type: 'GET',
+                        data:{cod: codigo},
+                        success: function(){
+                            alert("deletado com sucesso");
+                            $("#carregando2").hide();
+                            $("#conteudo").load("consultar.php");
+                        },
+                        erro:function(){
+                            alert("falha ao deletar");
+                        }
+
+                    });//fim do ajax
+
+                  }//fim do if
+                });//fim do click
+
+                $("#carregando").hide();
+                $("#carregando2").hide();
+
+                $("#conteudo").load("consultar.php");
+
+                $("#btnfechar").click(function(){
+                    
+                    $("#carregando2").hide();
+
+
+                });
+
+              
+
+                $(document).on("click", ".cartoes", function(){
+                    $("#carregando2").show();
+                    //para descobrir intens especificos no cartao
+                    var codigo = $(this).find(".cod_produto").text();
+                    var descricao =$(this).find(".desc_produto").text();
+                    var setor =$(this).find(".setor_produto").text();
+                    var categoria=$(this).find(".cat_produto").text();
+                    
+                    $("#codigo").val(codigo);
+                    $("#descricao").val(descricao);
+                    $("#categoria").val(categoria);
+                    $("#setor").val(setor);
+
+                    
+                });
+
+                $("#btnPesquisar").click(function(){
+                    $("#carregando2").show();
+
+            var texto = $("#texto_pesquisado").val();
+            alert(texto_pesquisado);
+            //requisição assincrona
+                    $.ajax({ 
+                        url: 'pesquisar.php',
+                        type: 'POST',
+                        data: {texto_pesquisado : texto},
+                        success: function(data){
+                            $("#conteudo").html(data);
+                            $("#carregando").hide();
+                        },
+                        error: function(){
+                            alert("Falha na pesquisa!");
+                        }
+                    });
+                });
+                   
+            });
+        </script>  
 </body>
 </html>
